@@ -1,0 +1,50 @@
+name: Sonar project key rename
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Apply the project key rename
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: SonarSource/sonarqube-auth-action@v1
+        id: auth
+        with:
+          project-key: yzlaboratory_shhh
+
+      - name: Inspect and rename
+        env:
+          SONAR_TOKEN: ${{ steps.auth.outputs.sonar-token }}
+          APPLY: ${{ inputs.apply }}
+        run: |
+          set -euo pipefail
+
+          echo "Current project:"
+          curl -sS -u "$SONAR_TOKEN:" \
+            "https://sonarcloud.io/api/projects/search?organization=yzlaboratory&projects=yzlaboratory_shhh" \
+            | jq '{paging, projects: [.components[] | {key, name, qualifier}]}'
+
+          if [ "$APPLY" != "true" ]; then
+            echo "Dry run only."
+            exit 0
+          fi
+
+          status=$(curl -sS -o /tmp/sonar-rename.json -w '%{http_code}' \
+            -u "$SONAR_TOKEN:" \
+            -X POST "https://sonarcloud.io/api/projects/update_key" \
+            --data-urlencode "from=yzlaboratory_shhh" \
+            --data-urlencode "to=yzlaboratory_shh")
+
+          echo "Rename HTTP status: $status"
+          cat /tmp/sonar-rename.json
+          test "$status" = "200" -o "$status" = "204"
