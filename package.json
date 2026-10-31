@@ -1,6 +1,6 @@
 {
   "name": "@yzlaboratory/shh",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A radical no-comments linter for JavaScript and TypeScript.",
   "keywords": [
     "comments",
