@@ -304,6 +304,26 @@ console.log(result.source);
 console.log(result.removed);
 ```
 
+## Releasing
+
+Publishing is automated on pushes to `main`.
+
+The repository has two guards:
+
+- `.githooks/pre-push` checks npm before a push to `main` and fails if the current `package.json` version is already published.
+- `.github/workflows/publish.yml` repeats that check, runs the test suite, and publishes with provenance.
+
+`npm install` configures the hook path automatically. The workflow needs an `NPM_TOKEN` repository secret with publish access.
+
+Release with:
+
+```sh
+npm version patch
+git push
+```
+
+Every push to `main` must have an unpublished version. For a non-release push, bump the version or bypass the local hook with `git push --no-verify`; the workflow will still fail if the version is already published.
+
 ## Development
 
 ```sh

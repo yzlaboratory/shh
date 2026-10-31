@@ -23,7 +23,7 @@
   "homepage": "https://github.com/yzlaboratory/shh#readme",
   "type": "module",
   "bin": {
-    "shh": "./dist/cli.js"
+    "shh": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -38,13 +38,18 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/make-executable.mjs",
     "dev": "tsx src/cli.ts",
-    "prepare": "npm run build",
+    "prepare": "npm run build && node scripts/install-git-hooks.mjs",
+    "hooks:install": "node scripts/install-git-hooks.mjs",
+    "check:version": "node scripts/check-version.mjs",
     "test": "npm run build && node --import tsx --test test/*.test.ts",
     "test:watch": "npm run build && node --import tsx --test --watch test/*.test.ts",
     "check": "npm run build && node dist/cli.js check src test",
