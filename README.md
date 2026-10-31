@@ -28,6 +28,14 @@ This is intentionally blunt. A more nuanced policy can come later.
 
 ## Install
 
+### Homebrew
+
+```sh
+brew install yzlaboratory/tap/shh
+```
+
+### npm
+
 ```sh
 npm install --save-dev @yzlaboratory/shh
 ```
