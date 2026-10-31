@@ -48,7 +48,8 @@ function tarballSha256() {
       ],
       { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] },
     );
-    const [packed] = JSON.parse(output);
+    const parsed = JSON.parse(output);
+    const packed = Array.isArray(parsed) ? parsed[0] : Object.values(parsed)[0];
     const tarball = readFileSync(path.join(directory, packed.filename));
     return createHash("sha256").update(tarball).digest("hex");
   } finally {

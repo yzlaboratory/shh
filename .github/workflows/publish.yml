@@ -41,7 +41,7 @@ jobs:
         id: pack
         run: |
           npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP" > "$RUNNER_TEMP/pack.json"
-          TARBALL_PATH=$(node -e 'const fs = require("fs"); const [packed] = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); process.stdout.write(process.argv[2] + "/" + packed.filename)' "$RUNNER_TEMP/pack.json" "$RUNNER_TEMP")
+          TARBALL_PATH=$(node -e 'const fs = require("fs"); const data = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); const packed = Array.isArray(data) ? data[0] : Object.values(data)[0]; process.stdout.write(process.argv[2] + "/" + packed.filename)' "$RUNNER_TEMP/pack.json" "$RUNNER_TEMP")
           TAG="v$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
           ASSET_NAME=$(basename "$TARBALL_PATH")
           SHA256=$(sha256sum "$TARBALL_PATH" | awk '{print $1}')
