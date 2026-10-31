@@ -15,56 +15,53 @@ const packageJson = JSON.parse(
 );
 const packageName = packageJson.name;
 const version = packageJson.version;
-const packageBasename = packageName.split("/").at(-1);
-const tarballUrl = `https://registry.npmjs.org/${packageName}/-/${packageBasename}-${version}.tgz`;
+const repository = process.env.GITHUB_REPOSITORY ?? "yzlaboratory/shh";
+const releaseTag = process.env.RELEASE_TAG ?? `v${version}`;
+const assetName =
+  process.env.RELEASE_ASSET_NAME ??
+  `${packageName.replace(/^@/, "").replace(/\//g, "-")}-${version}.tgz`;
+const tarballUrl =
+  process.env.HOMEBREW_TARBALL_URL ??
+  `https://github.com/${repository}/releases/download/${releaseTag}/${assetName}`;
 const tapRepository =
   process.env.TAP_REPOSITORY ?? "yzlaboratory/homebrew-tap";
 const formulaPath = process.env.TAP_FORMULA_PATH ?? "Formula/shh.rb";
-const maxAttempts = 120;
-const retryDelayMs = 5000;
 
-async function downloadTarball() {
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    let response;
+function tarballSha256() {
+  const configured = process.env.HOMEBREW_TARBALL_PATH;
 
-    try {
-      response = await fetch(tarballUrl);
-    } catch (error) {
-      if (attempt === maxAttempts) {
-        throw new Error(
-          `Unable to download ${tarballUrl}: ${error.message}`,
-        );
-      }
-    }
-
-    if (response?.status === 404) {
-      process.stdout.write(
-        `Waiting for ${packageName}@${version} on npm (${attempt}/${maxAttempts})...\n`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
-      continue;
-    }
-
-    if (response && !response.ok) {
-      throw new Error(
-        `npm registry returned ${response.status} for ${tarballUrl}.`,
-      );
-    }
-
-    if (response) {
-      return Buffer.from(await response.arrayBuffer());
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+  if (configured) {
+    return createHash("sha256").update(readFileSync(configured)).digest("hex");
   }
 
-  throw new Error(
-    `Timed out waiting for ${packageName}@${version} on npm.`,
-  );
+  const directory = mkdtempSync(path.join(tmpdir(), "shh-pack-"));
+
+  try {
+    const output = execFileSync(
+      "npm",
+      [
+        "pack",
+        "--json",
+        "--ignore-scripts",
+        "--pack-destination",
+        directory,
+      ],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] },
+    );
+    const [packed] = JSON.parse(output);
+    const tarball = readFileSync(path.join(directory, packed.filename));
+    return createHash("sha256").update(tarball).digest("hex");
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 }
 
-const tarball = await downloadTarball();
-const sha256 = createHash("sha256").update(tarball).digest("hex");
+const sha256 = process.env.HOMEBREW_SHA256 ?? tarballSha256();
+
+if (!/^[a-f0-9]{64}$/i.test(sha256)) {
+  throw new Error(`Invalid SHA-256 checksum: ${sha256}`);
+}
+
 const directory = mkdtempSync(path.join(tmpdir(), "shh-homebrew-tap-"));
 
 try {
@@ -81,6 +78,14 @@ try {
 
   const formulaFile = path.join(directory, formulaPath);
   const current = readFileSync(formulaFile, "utf8");
+
+  if (
+    !/^  url ".*"$/m.test(current) ||
+    !/^  sha256 ".*"$/m.test(current)
+  ) {
+    throw new Error(`Unable to find url and sha256 in ${formulaPath}.`);
+  }
+
   let next = current.replace(/^  url ".*"$/m, `  url "${tarballUrl}"`);
   next = next.replace(/^  sha256 ".*"$/m, `  sha256 "${sha256}"`);
 

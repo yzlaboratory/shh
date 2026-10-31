@@ -341,7 +341,9 @@ gh workflow enable Publish --repo yzlaboratory/shh
 
 After that, releases use OIDC trusted publishing. No `NPM_TOKEN` secret is needed.
 
-After a successful publish, the workflow also updates `yzlaboratory/homebrew-tap` using the `HOMEBREW_TAP_DEPLOY_KEY` deploy key.
+After a successful publish, the workflow packs the same contents into a GitHub Release asset, creates or updates the `vX.Y.Z` release, and points the Homebrew formula at that asset. This avoids waiting for npm registry propagation.
+
+The tap update uses the `HOMEBREW_TAP_DEPLOY_KEY` deploy key.
 
 Release with:
 

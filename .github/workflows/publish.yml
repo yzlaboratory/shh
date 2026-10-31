@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 concurrency:
@@ -37,6 +37,37 @@ jobs:
       - name: Publish to npm
         run: npm publish --access public --provenance
 
+      - name: Pack release asset
+        id: pack
+        run: |
+          npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP" > "$RUNNER_TEMP/pack.json"
+          TARBALL_PATH=$(node -e 'const fs = require("fs"); const [packed] = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); process.stdout.write(process.argv[2] + "/" + packed.filename)' "$RUNNER_TEMP/pack.json" "$RUNNER_TEMP")
+          TAG="v$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
+          ASSET_NAME=$(basename "$TARBALL_PATH")
+          SHA256=$(sha256sum "$TARBALL_PATH" | awk '{print $1}')
+          TARBALL_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ASSET_NAME}"
+          {
+            echo "path=$TARBALL_PATH"
+            echo "name=$ASSET_NAME"
+            echo "sha256=$SHA256"
+            echo "url=$TARBALL_URL"
+            echo "tag=$TAG"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.pack.outputs.tag }}
+          ASSET_PATH: ${{ steps.pack.outputs.path }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET_PATH" --clobber
+          else
+            gh release create "$TAG" "$ASSET_PATH" \
+              --title "$TAG" \
+              --generate-notes
+          fi
+
       - name: Configure Homebrew tap deploy key
         env:
           HOMEBREW_TAP_DEPLOY_KEY: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
@@ -51,6 +82,9 @@ jobs:
           ssh-keyscan -H github.com >> "$HOME/.ssh/known_hosts"
 
       - name: Update Homebrew formula
+        env:
+          HOMEBREW_SHA256: ${{ steps.pack.outputs.sha256 }}
+          HOMEBREW_TARBALL_URL: ${{ steps.pack.outputs.url }}
         run: |
           GIT_SSH_COMMAND="ssh -i $HOME/.ssh/shh_homebrew_tap -o IdentitiesOnly=yes" \
             node scripts/update-homebrew-formula.mjs
