@@ -1,12 +1,8 @@
 name: Sonar project key rename
 
 on:
-  workflow_dispatch:
-    inputs:
-      apply:
-        description: Apply the project key rename
-        required: false
-        default: "false"
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
@@ -25,7 +21,7 @@ jobs:
       - name: Inspect and rename
         env:
           SONAR_TOKEN: ${{ steps.auth.outputs.sonar-token }}
-          APPLY: ${{ inputs.apply }}
+          APPLY: "true"
         run: |
           set -euo pipefail
 
