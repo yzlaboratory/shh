@@ -53,7 +53,7 @@ Commands:
   delete   Remove comments from source files
 
 Options:
-  --staged          Check files staged in git
+  --staged          Use files staged in git
   --ignore <glob>   Ignore files matching a glob (repeatable)
   --config <path>   Path to a shhh config file
   --no-gitignore    Do not read .gitignore

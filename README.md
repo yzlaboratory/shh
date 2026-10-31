@@ -87,7 +87,7 @@ git diff
 
 | Option | Description |
 | --- | --- |
-| `--staged` | Check only files staged in git. Cannot be combined with file arguments. |
+| `--staged` | Use only files staged in git. Cannot be combined with file arguments. |
 | `--ignore <glob>` | Ignore files matching a glob. Repeatable. |
 | `--config <path>` | Use a specific config file. |
 | `--no-gitignore` | Do not read `.gitignore`. |
@@ -213,7 +213,9 @@ This is deliberately aggressive. Most teams should start with `check` and run `d
 
 ## Cleaning an existing repository
 
-Existing comments will make the first check fail. To clear them:
+`check` is file-wide, not diff-wide. In a repository with existing comments, any commit that touches a commented file will fail until the comments are gone.
+
+To clear them:
 
 ```sh
 git switch -c remove-comments
