@@ -614,7 +614,14 @@ function isEntryPoint(): boolean {
 }
 
 if (isEntryPoint()) {
-  run(process.argv.slice(2)).then((code) => {
-    process.exitCode = code;
-  });
+  run(process.argv.slice(2))
+    .then((code) => {
+      process.exitCode = code;
+    })
+    .catch((error: unknown) => {
+      process.stderr.write(
+        `${pc.red("error")} ${error instanceof Error ? error.message : String(error)}\n`,
+      );
+      process.exitCode = 2;
+    });
 }

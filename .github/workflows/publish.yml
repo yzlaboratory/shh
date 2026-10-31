@@ -25,9 +25,8 @@ jobs:
           node-version: 24
           cache: npm
 
-      - run: npm install --global npm@latest
       - run: npm --version
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm test
       - run: npm run check
 

@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
+  existsSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -8,6 +9,21 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+
+const GIT =
+  [
+    "/usr/bin/git",
+    "/usr/local/bin/git",
+    "/opt/homebrew/bin/git",
+    "C:\\Program Files\\Git\\cmd\\git.exe",
+  ].find((candidate) => existsSync(candidate)) ?? "git";
+const NPM = (() => {
+  const candidate = path.join(
+    path.dirname(process.execPath),
+    process.platform === "win32" ? "npm.cmd" : "npm",
+  );
+  return existsSync(candidate) ? candidate : "npm";
+})();
 
 const dryRun = process.argv.includes("--dry-run");
 const packageJson = JSON.parse(
@@ -38,7 +54,7 @@ function tarballSha256() {
 
   try {
     const output = execFileSync(
-      "npm",
+      NPM,
       [
         "pack",
         "--json",
@@ -67,7 +83,7 @@ const directory = mkdtempSync(path.join(tmpdir(), "shh-homebrew-tap-"));
 
 try {
   execFileSync(
-    "git",
+    GIT,
     [
       "clone",
       "--depth=1",
@@ -99,12 +115,12 @@ try {
   } else {
     writeFileSync(formulaFile, next);
     execFileSync(
-      "git",
+      GIT,
       ["config", "user.name", "github-actions[bot]"],
       { cwd: directory },
     );
     execFileSync(
-      "git",
+      GIT,
       [
         "config",
         "user.email",
@@ -112,13 +128,13 @@ try {
       ],
       { cwd: directory },
     );
-    execFileSync("git", ["add", formulaPath], { cwd: directory });
+    execFileSync(GIT, ["add", formulaPath], { cwd: directory });
     execFileSync(
-      "git",
+      GIT,
       ["commit", "-m", `chore: bump shh to ${version}`],
       { cwd: directory, stdio: "inherit" },
     );
-    execFileSync("git", ["push", "origin", "HEAD:main"], {
+    execFileSync(GIT, ["push", "origin", "HEAD:main"], {
       cwd: directory,
       stdio: "inherit",
     });

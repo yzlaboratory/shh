@@ -9,6 +9,17 @@ import {
   IGNORE_FILENAMES,
 } from "./constants.js";
 
+const GIT =
+  [
+    "/usr/bin/git",
+    "/usr/local/bin/git",
+    "/opt/homebrew/bin/git",
+    "C:\\Program Files\\Git\\cmd\\git.exe",
+  ].find((candidate) => existsSync(candidate)) ?? "git";
+
+const comparePaths = (left: string, right: string): number =>
+  left.localeCompare(right);
+
 export interface ResolveFilesOptions {
   cwd: string;
   patterns?: string[];
@@ -150,7 +161,7 @@ function isIgnored(
 function stagedPaths(cwd: string): string[] {
   try {
     const output = execFileSync(
-      "git",
+      GIT,
       [
         "diff",
         "--cached",
@@ -226,7 +237,9 @@ export async function resolveFiles(
       ignorePatterns,
     );
 
-    return files.filter((filename) => !isIgnored(matcher, cwd, filename)).sort();
+    return files
+      .filter((filename) => !isIgnored(matcher, cwd, filename))
+      .sort(comparePaths);
   }
 
   const globs = buildPatterns(patterns, cwd, extensions);
@@ -235,5 +248,5 @@ export async function resolveFiles(
   return files
     .filter((filename) => isSupportedFile(filename, extensions))
     .filter((filename) => !isIgnored(matcher, cwd, filename))
-    .sort();
+    .sort(comparePaths);
 }

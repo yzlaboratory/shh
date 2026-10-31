@@ -1,7 +1,16 @@
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+
+const GIT =
+  [
+    "/usr/bin/git",
+    "/usr/local/bin/git",
+    "/opt/homebrew/bin/git",
+    "C:\\Program Files\\Git\\cmd\\git.exe",
+  ].find((candidate) => existsSync(candidate)) ?? "git";
 
 function git(args, options = {}) {
-  return execFileSync("git", args, {
+  return execFileSync(GIT, args, {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "ignore"],
     ...options,
