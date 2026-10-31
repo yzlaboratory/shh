@@ -313,7 +313,9 @@ The repository has two guards:
 - `.githooks/pre-push` checks npm before a push to `main` and fails if the current `package.json` version is already published.
 - `.github/workflows/publish.yml` repeats that check, runs the test suite, and publishes with provenance.
 
-`npm install` configures the hook path automatically. The workflow needs an `NPM_TOKEN` repository secret with publish access.
+`npm install` configures the hook path automatically.
+
+For the first publish, the workflow uses an `NPM_TOKEN` repository secret with publish access. The token must be a granular access token with bypass 2FA enabled, or the publish will fail with a 403. After the package exists, you can switch the repository to npm trusted publishing and remove the token.
 
 Release with:
 
