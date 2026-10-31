@@ -511,6 +511,11 @@ function noFilesMatched(options: CliOptions): boolean {
 
 export async function run(argv: string[]): Promise<number> {
   try {
+    if (argv[0] === "help") {
+      process.stdout.write(HELP);
+      return 0;
+    }
+
     const options = parseArgs(argv);
 
     if (options.help) {

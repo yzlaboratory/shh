@@ -193,7 +193,9 @@ export async function resolveFiles(
 ): Promise<string[]> {
   const cwd = options.cwd;
   const extensions = normalizeExtensions(
-    options.extensions ?? [...DEFAULT_EXTENSIONS],
+    options.extensions && options.extensions.length > 0
+      ? options.extensions
+      : [...DEFAULT_EXTENSIONS],
   );
   const patterns = options.patterns ?? [];
   const ignorePatterns = [
