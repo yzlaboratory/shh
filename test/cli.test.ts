@@ -19,7 +19,7 @@ const repositoryRoot = path.resolve(
 const cliPath = path.join(repositoryRoot, "dist", "cli.js");
 
 function temporaryDirectory(): string {
-  return mkdtempSync(path.join(tmpdir(), "shhh-test-"));
+  return mkdtempSync(path.join(tmpdir(), "shh-test-"));
 }
 
 function runCli(
@@ -143,11 +143,11 @@ test("prints JSON for editor and CI integrations", () => {
   }
 });
 
-test("respects shhh.config.json and package.json configuration", () => {
+test("respects shh.config.json and package.json configuration", () => {
   const cwd = temporaryDirectory();
 
   try {
-    write(cwd, "shhh.config.json", '{"ignore":["src/generated/**"]}\n');
+    write(cwd, "shh.config.json", '{"ignore":["src/generated/**"]}\n');
     write(cwd, "src/generated/a.ts", "// generated\n");
     write(cwd, "src/b.ts", "// source\n");
 

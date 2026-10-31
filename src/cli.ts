@@ -42,11 +42,11 @@ interface ReportedError {
   column?: number;
 }
 
-const HELP = `shhh
+const HELP = `shh
 
 Usage:
-  shhh [check] [files...] [options]
-  shhh delete [files...] [options]
+  shh [check] [files...] [options]
+  shh delete [files...] [options]
 
 Commands:
   check    Find comments and exit 1 when any are found (default)
@@ -55,7 +55,7 @@ Commands:
 Options:
   --staged          Use files staged in git
   --ignore <glob>   Ignore files matching a glob (repeatable)
-  --config <path>   Path to a shhh config file
+  --config <path>   Path to a shh config file
   --no-gitignore    Do not read .gitignore
   --json            Print machine-readable JSON
   --quiet           Suppress success output
@@ -65,17 +65,17 @@ Options:
 
 Files:
   JavaScript, TypeScript, JSX, and TSX are supported.
-  .gitignore and .shhhignore are respected automatically.
+  .gitignore and .shhignore are respected automatically.
 
 Examples:
-  shhh check
-  shhh check src
-  shhh check --staged
-  shhh delete src --dry-run
-  shhh delete src
+  shh check
+  shh check src
+  shh check --staged
+  shh delete src --dry-run
+  shh delete src
 
 Config:
-  Add shhh.config.json or a "shhh" key in package.json:
+  Add shh.config.json or a "shh" key in package.json:
   { "ignore": ["src/generated/**"], "extensions": [".ts", ".tsx"] }
 `;
 

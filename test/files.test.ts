@@ -11,7 +11,7 @@ import test from "node:test";
 import { resolveFiles } from "../src/index.js";
 
 function temporaryDirectory(): string {
-  return mkdtempSync(path.join(tmpdir(), "shhh-files-"));
+  return mkdtempSync(path.join(tmpdir(), "shh-files-"));
 }
 
 function write(cwd: string, filename: string, contents = ""): void {
@@ -59,12 +59,12 @@ test("ignores dependency and build directories", async () => {
   }
 });
 
-test("respects .gitignore and .shhhignore", async () => {
+test("respects .gitignore and .shhignore", async () => {
   const cwd = temporaryDirectory();
 
   try {
     write(cwd, ".gitignore", "generated/\n");
-    write(cwd, ".shhhignore", "vendor-file.ts\n");
+    write(cwd, ".shhignore", "vendor-file.ts\n");
     write(cwd, "src/a.ts");
     write(cwd, "generated/a.ts");
     write(cwd, "vendor-file.ts");

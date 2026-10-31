@@ -25,6 +25,6 @@ export const DEFAULT_IGNORES = [
   "**/*.min.cjs",
 ] as const;
 
-export const CONFIG_FILENAMES = ["shhh.config.json"] as const;
+export const CONFIG_FILENAMES = ["shh.config.json"] as const;
 
-export const IGNORE_FILENAMES = [".gitignore", ".shhhignore"] as const;
+export const IGNORE_FILENAMES = [".gitignore", ".shhignore"] as const;

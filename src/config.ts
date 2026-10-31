@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { CONFIG_FILENAMES } from "./constants.js";
 
-export interface ShhhConfig {
+export interface ShhConfig {
   ignore: string[];
   extensions: string[];
 }
@@ -24,7 +24,7 @@ function stringArray(value: unknown, key: string, filename: string): string[] {
   return value;
 }
 
-function normalizeConfig(raw: RawConfig, filename: string): ShhhConfig {
+function normalizeConfig(raw: RawConfig, filename: string): ShhConfig {
   return {
     ignore: stringArray(raw.ignore, "ignore", filename),
     extensions: stringArray(raw.extensions, "extensions", filename).map(
@@ -46,7 +46,7 @@ function readJson(filename: string): unknown {
   }
 }
 
-function readConfigFile(filename: string): ShhhConfig {
+function readConfigFile(filename: string): ShhConfig {
   const parsed = readJson(filename);
 
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
@@ -56,21 +56,21 @@ function readConfigFile(filename: string): ShhhConfig {
   return normalizeConfig(parsed as RawConfig, filename);
 }
 
-function readPackageConfig(filename: string): ShhhConfig | undefined {
+function readPackageConfig(filename: string): ShhConfig | undefined {
   const parsed = readJson(filename);
 
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
     return undefined;
   }
 
-  const raw = (parsed as { shhh?: unknown }).shhh;
+  const raw = (parsed as { shh?: unknown }).shh;
 
   if (raw === undefined) {
     return undefined;
   }
 
   if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new Error(`"shhh" in ${filename} must be an object.`);
+    throw new Error(`"shh" in ${filename} must be an object.`);
   }
 
   return normalizeConfig(raw as RawConfig, filename);
@@ -79,7 +79,7 @@ function readPackageConfig(filename: string): ShhhConfig | undefined {
 export function loadConfig(
   cwd: string,
   explicitConfigPath?: string,
-): ShhhConfig {
+): ShhConfig {
   if (explicitConfigPath) {
     const filename = path.resolve(cwd, explicitConfigPath);
 

@@ -16,5 +16,5 @@ export {
 } from "./files.js";
 export {
   loadConfig,
-  type ShhhConfig,
+  type ShhConfig,
 } from "./config.js";

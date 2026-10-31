@@ -1,5 +1,5 @@
 {
-  "name": "shhh-cli",
+  "name": "@yzlaboratory/shh",
   "version": "0.1.0",
   "description": "A radical no-comments linter for JavaScript and TypeScript.",
   "keywords": [
@@ -8,21 +8,22 @@
     "cli",
     "typescript",
     "javascript",
-    "pre-commit"
+    "pre-commit",
+    "shh"
   ],
   "license": "MIT",
   "author": "yz <x@yzlaboratory.dev>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yzlaboratory/shhh.git"
+    "url": "git+https://github.com/yzlaboratory/shh.git"
   },
   "bugs": {
-    "url": "https://github.com/yzlaboratory/shhh/issues"
+    "url": "https://github.com/yzlaboratory/shh/issues"
   },
-  "homepage": "https://github.com/yzlaboratory/shhh#readme",
+  "homepage": "https://github.com/yzlaboratory/shh#readme",
   "type": "module",
   "bin": {
-    "shhh": "./dist/cli.js"
+    "shh": "./dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

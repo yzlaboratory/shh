@@ -1,13 +1,13 @@
-# shhh
+# shh
 
 > A radical no-comments linter for JavaScript and TypeScript.
 
-[![CI](https://github.com/yzlaboratory/shhh/actions/workflows/ci.yml/badge.svg)](https://github.com/yzlaboratory/shhh/actions/workflows/ci.yml)
+[![CI](https://github.com/yzlaboratory/shh/actions/workflows/ci.yml/badge.svg)](https://github.com/yzlaboratory/shh/actions/workflows/ci.yml)
 
-`shhh` is Prettier's angry little sibling. Instead of formatting your code, it finds comments and tells you to be quiet.
+`shh` is Prettier's angry little sibling. Instead of formatting your code, it finds comments and tells you to be quiet.
 
 ```console
-$ shhh check src
+$ shh check src
 
 src/api/client.ts
   14:3   // retry twice because the backend is flaky
@@ -21,7 +21,7 @@ src/api/client.ts
 
 Coding agents love comments. They explain obvious code, narrate temporary confusion, and leave behind TODO archaeology. Human readers then have to maintain prose that is coupled to implementation and goes stale silently.
 
-`shhh` takes the radical position for its first release: **comments are a lint error**. No exceptions. No exemptions. If you want a comment, rewrite the code until it does not need one.
+`shh` takes the radical position for its first release: **comments are a lint error**. No exceptions. No exemptions. If you want a comment, rewrite the code until it does not need one.
 
 This is intentionally blunt. A more nuanced policy can come later.
 
@@ -30,7 +30,13 @@ This is intentionally blunt. A more nuanced policy can come later.
 Install directly from GitHub until the package is published to npm:
 
 ```sh
-npm install --save-dev github:yzlaboratory/shhh
+npm install --save-dev github:yzlaboratory/shh
+```
+
+After publishing, the npm install will be:
+
+```sh
+npm install --save-dev @yzlaboratory/shh
 ```
 
 Requires Node.js 20 or newer. Git installs run the `prepare` script, so the CLI is built automatically.
@@ -38,14 +44,14 @@ Requires Node.js 20 or newer. Git installs run the `prepare` script, so the CLI 
 Once installed, the binary is available locally:
 
 ```sh
-npx shhh check .
+npx shh check .
 ```
 
 ## Usage
 
 ```sh
-shhh [check] [files...] [options]
-shhh delete [files...] [options]
+shh [check] [files...] [options]
+shh delete [files...] [options]
 ```
 
 `check` is the default command.
@@ -53,10 +59,10 @@ shhh delete [files...] [options]
 ### Find comments
 
 ```sh
-shhh check
-shhh check src
-shhh check "src/**/*.{ts,tsx}"
-shhh check --staged
+shh check
+shh check src
+shh check "src/**/*.{ts,tsx}"
+shh check --staged
 ```
 
 `check` exits with code `1` when it finds comments, so it works directly as a CI or pre-commit gate. It never modifies files.
@@ -64,8 +70,8 @@ shhh check --staged
 ### Delete comments
 
 ```sh
-shhh delete . --dry-run
-shhh delete .
+shh delete . --dry-run
+shh delete .
 ```
 
 `delete` removes every comment it finds, along with the whitespace those comments leave behind. It refuses to write anything if any file fails to parse.
@@ -73,13 +79,13 @@ shhh delete .
 Always preview first:
 
 ```sh
-shhh delete . --dry-run
+shh delete . --dry-run
 ```
 
 Then review the diff before committing:
 
 ```sh
-shhh delete .
+shh delete .
 git diff
 ```
 
@@ -99,7 +105,7 @@ git diff
 
 ### Supported files
 
-`shhh` parses these extensions by default:
+`shh` parses these extensions by default:
 
 ```
 .js  .jsx  .ts  .tsx  .mjs  .cjs  .mts  .cts
@@ -111,7 +117,7 @@ Vue, Svelte, Astro, CSS, HTML, Markdown, Python, Go, Rust, and other languages a
 
 ## Configuration
 
-Create `shhh.config.json`:
+Create `shh.config.json`:
 
 ```json
 {
@@ -120,25 +126,25 @@ Create `shhh.config.json`:
 }
 ```
 
-Or add a `shhh` key to `package.json`:
+Or add a `shh` key to `package.json`:
 
 ```json
 {
-  "shhh": {
+  "shh": {
     "ignore": ["src/generated/**"]
   }
 }
 ```
 
-A `shhh.config.json` file takes priority over the `package.json` key.
+A `shh.config.json` file takes priority over the `package.json` key.
 
 ### Ignoring files
 
-`shhh` respects:
+`shh` respects:
 
 - `.gitignore` at the project root
-- `.shhhignore` at the project root
-- `ignore` entries in `shhh.config.json` or `package.json`
+- `.shhignore` at the project root
+- `ignore` entries in `shh.config.json` or `package.json`
 - `--ignore` flags
 
 These directories are always ignored:
@@ -155,7 +161,7 @@ A pre-commit check is the whole point. Pick whichever setup you already use.
 ### lint-staged
 
 ```sh
-npm install --save-dev github:yzlaboratory/shhh lint-staged
+npm install --save-dev github:yzlaboratory/shh lint-staged
 ```
 
 In `package.json`:
@@ -163,24 +169,24 @@ In `package.json`:
 ```json
 {
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}": "shhh check"
+    "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}": "shh check"
   }
 }
 ```
 
-Then wire lint-staged into your hook using Husky or your existing setup. lint-staged passes the staged filenames to `shhh check`, so you do not need `--staged` here.
+Then wire lint-staged into your hook using Husky or your existing setup. lint-staged passes the staged filenames to `shh check`, so you do not need `--staged` here.
 
 ### Husky
 
 ```sh
-npm install --save-dev github:yzlaboratory/shhh husky
+npm install --save-dev github:yzlaboratory/shh husky
 npx husky init
 ```
 
 Create `.husky/pre-commit`:
 
 ```sh
-npx --no-install shhh check --staged
+npx --no-install shh check --staged
 ```
 
 Make sure the hook is executable.
@@ -191,7 +197,7 @@ Create `.git/hooks/pre-commit`:
 
 ```sh
 #!/bin/sh
-exec npx --no-install shhh check --staged
+exec npx --no-install shh check --staged
 ```
 
 Then:
@@ -205,7 +211,7 @@ chmod +x .git/hooks/pre-commit
 If you are feeling brave, make the hook delete comments and re-stage the result:
 
 ```sh
-npx --no-install shhh delete --staged
+npx --no-install shh delete --staged
 git add -u
 ```
 
@@ -219,8 +225,8 @@ To clear them:
 
 ```sh
 git switch -c remove-comments
-shhh delete . --dry-run
-shhh delete .
+shh delete . --dry-run
+shh delete .
 git diff
 ```
 
@@ -247,7 +253,7 @@ That is the radical part. A later release can add a policy for comments that car
 ## JSON output
 
 ```sh
-shhh check --json
+shh check --json
 ```
 
 ```json
@@ -281,7 +287,7 @@ shhh check --json
 ## Programmatic API
 
 ```ts
-import { removeComments, scanSource } from "shhh-cli";
+import { removeComments, scanSource } from "@yzlaboratory/shh";
 
 const scan = scanSource("const value = 1; // comment\n", {
   filename: "input.ts",
@@ -307,7 +313,7 @@ npm test
 npm run check
 ```
 
-`npm run check` runs `shhh` against its own source. The codebase contains no comments. Obviously.
+`npm run check` runs `shh` against its own source. The codebase contains no comments. Obviously.
 
 ## License
 
