@@ -315,6 +315,8 @@ The repository has two guards:
 
 `npm install` configures the hook path automatically.
 
+Create the `@yzlaboratory` npm organization first if it does not exist.
+
 The first version has to be published manually, because npm requires the package to exist before a trusted publisher can be configured:
 
 ```sh
