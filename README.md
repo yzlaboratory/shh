@@ -315,7 +315,28 @@ The repository has two guards:
 
 `npm install` configures the hook path automatically.
 
-For the first publish, the workflow uses an `NPM_TOKEN` repository secret with publish access. The token must be a granular access token with bypass 2FA enabled, or the publish will fail with a 403. After the package exists, you can switch the repository to npm trusted publishing and remove the token.
+The first version has to be published manually, because npm requires the package to exist before a trusted publisher can be configured:
+
+```sh
+npm publish --access public
+```
+
+Complete the 2FA prompt. Then connect the GitHub workflow:
+
+```sh
+npx npm@11.10.0 trust github @yzlaboratory/shh \
+  --file publish.yml \
+  --repo yzlaboratory/shh \
+  -y
+```
+
+Enable the publish workflow:
+
+```sh
+gh workflow enable Publish --repo yzlaboratory/shh
+```
+
+After that, releases use OIDC trusted publishing. No `NPM_TOKEN` secret is needed.
 
 Release with:
 

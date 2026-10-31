@@ -25,17 +25,11 @@ jobs:
           node-version: 24
           cache: npm
 
+      - run: npm install --global npm@latest
+      - run: npm --version
       - run: npm ci
       - run: npm test
       - run: npm run check
-
-      - name: Configure npm authentication
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -n "$NODE_AUTH_TOKEN" ]; then
-            printf '//registry.npmjs.org/:_authToken=%s\n' "$NODE_AUTH_TOKEN" >> ~/.npmrc
-          fi
 
       - name: Verify version is unpublished
         run: npm run check:version
