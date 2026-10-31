@@ -1,0 +1,310 @@
+# shhh
+
+> A radical no-comments linter for JavaScript and TypeScript.
+
+[![CI](https://github.com/yzlaboratory/shhh/actions/workflows/ci.yml/badge.svg)](https://github.com/yzlaboratory/shhh/actions/workflows/ci.yml)
+
+`shhh` is Prettier's angry little sibling. Instead of formatting your code, it finds comments and tells you to be quiet.
+
+```console
+$ shhh check src
+
+src/api/client.ts
+  14:3   // retry twice because the backend is flaky
+  51:1   /* legacy fallback */
+  88:12  // TODO: clean this up
+
+✖ Found 3 comments in 1 file.
+```
+
+## Why
+
+Coding agents love comments. They explain obvious code, narrate temporary confusion, and leave behind TODO archaeology. Human readers then have to maintain prose that is coupled to implementation and goes stale silently.
+
+`shhh` takes the radical position for its first release: **comments are a lint error**. No exceptions. No exemptions. If you want a comment, rewrite the code until it does not need one.
+
+This is intentionally blunt. A more nuanced policy can come later.
+
+## Install
+
+```sh
+npm install --save-dev shhh-cli
+```
+
+Requires Node.js 20 or newer.
+
+Once installed, the binary is available locally:
+
+```sh
+npx shhh check .
+```
+
+## Usage
+
+```sh
+shhh [check] [files...] [options]
+shhh delete [files...] [options]
+```
+
+`check` is the default command.
+
+### Find comments
+
+```sh
+shhh check
+shhh check src
+shhh check "src/**/*.{ts,tsx}"
+shhh check --staged
+```
+
+`check` exits with code `1` when it finds comments, so it works directly as a CI or pre-commit gate. It never modifies files.
+
+### Delete comments
+
+```sh
+shhh delete . --dry-run
+shhh delete .
+```
+
+`delete` removes every comment it finds, along with the whitespace those comments leave behind. It refuses to write anything if any file fails to parse.
+
+Always preview first:
+
+```sh
+shhh delete . --dry-run
+```
+
+Then review the diff before committing:
+
+```sh
+shhh delete .
+git diff
+```
+
+### Options
+
+| Option | Description |
+| --- | --- |
+| `--staged` | Check only files staged in git. Cannot be combined with file arguments. |
+| `--ignore <glob>` | Ignore files matching a glob. Repeatable. |
+| `--config <path>` | Use a specific config file. |
+| `--no-gitignore` | Do not read `.gitignore`. |
+| `--json` | Print machine-readable JSON. |
+| `--quiet` | Suppress success output. Failures are still printed. |
+| `--dry-run` | Preview `delete` without writing files. |
+| `-h`, `--help` | Show help. |
+| `-v`, `--version` | Show the version. |
+
+### Supported files
+
+`shhh` parses these extensions by default:
+
+```
+.js  .jsx  .ts  .tsx  .mjs  .cjs  .mts  .cts
+```
+
+It understands JavaScript, TypeScript, JSX, and TSX syntax through Babel's parser, so comment-like text inside strings, template literals, and regular expressions is not treated as a comment.
+
+Vue, Svelte, Astro, CSS, HTML, Markdown, Python, Go, Rust, and other languages are not supported yet.
+
+## Configuration
+
+Create `shhh.config.json`:
+
+```json
+{
+  "ignore": ["src/generated/**", "**/*.gen.ts"],
+  "extensions": [".ts", ".tsx"]
+}
+```
+
+Or add a `shhh` key to `package.json`:
+
+```json
+{
+  "shhh": {
+    "ignore": ["src/generated/**"]
+  }
+}
+```
+
+A `shhh.config.json` file takes priority over the `package.json` key.
+
+### Ignoring files
+
+`shhh` respects:
+
+- `.gitignore` at the project root
+- `.shhhignore` at the project root
+- `ignore` entries in `shhh.config.json` or `package.json`
+- `--ignore` flags
+
+These directories are always ignored:
+
+```
+node_modules  .git  dist  build  coverage
+.next  .nuxt  .svelte-kit  .turbo  vendor
+```
+
+## Pre-commit hooks
+
+A pre-commit check is the whole point. Pick whichever setup you already use.
+
+### lint-staged
+
+```sh
+npm install --save-dev shhh-cli lint-staged
+```
+
+In `package.json`:
+
+```json
+{
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}": "shhh check"
+  }
+}
+```
+
+Then wire lint-staged into your hook using Husky or your existing setup. lint-staged passes the staged filenames to `shhh check`, so you do not need `--staged` here.
+
+### Husky
+
+```sh
+npm install --save-dev shhh-cli husky
+npx husky init
+```
+
+Create `.husky/pre-commit`:
+
+```sh
+npx --no-install shhh check --staged
+```
+
+Make sure the hook is executable.
+
+### Plain git hook
+
+Create `.git/hooks/pre-commit`:
+
+```sh
+#!/bin/sh
+exec npx --no-install shhh check --staged
+```
+
+Then:
+
+```sh
+chmod +x .git/hooks/pre-commit
+```
+
+### Let the hook fix commits automatically
+
+If you are feeling brave, make the hook delete comments and re-stage the result:
+
+```sh
+npx --no-install shhh delete --staged
+git add -u
+```
+
+This is deliberately aggressive. Most teams should start with `check` and run `delete` manually.
+
+## Cleaning an existing repository
+
+Existing comments will make the first check fail. To clear them:
+
+```sh
+git switch -c remove-comments
+shhh delete . --dry-run
+shhh delete .
+git diff
+```
+
+Review the result carefully before merging. The first release has no exemptions, so it will also remove:
+
+- `// eslint-disable` and `// @ts-ignore` directives
+- `/*#__PURE__*/` annotations
+- license headers
+- triple-slash TypeScript references
+- code samples embedded in comments
+
+That is the radical part. A later release can add a policy for comments that carry meaning to tooling.
+
+## Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | No comments found, or deletion succeeded |
+| `1` | Comments found by `check` |
+| `2` | Invalid arguments, config errors, parse errors, or filesystem errors |
+
+`delete --dry-run` exits with `0` even when it would remove comments, because it is a preview rather than a gate.
+
+## JSON output
+
+```sh
+shhh check --json
+```
+
+```json
+{
+  "version": 1,
+  "command": "check",
+  "ok": false,
+  "files": [
+    {
+      "path": "src/a.ts",
+      "comments": [
+        {
+          "kind": "line",
+          "text": "// TODO",
+          "line": 1,
+          "column": 1,
+          "endLine": 1,
+          "endColumn": 8
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "files": 1,
+    "comments": 1
+  }
+}
+```
+
+## Programmatic API
+
+```ts
+import { removeComments, scanSource } from "shhh-cli";
+
+const scan = scanSource("const value = 1; // comment\n", {
+  filename: "input.ts",
+});
+
+console.log(scan.comments.length);
+console.log(scan.errors);
+
+const result = removeComments("// comment\nconst value = 1;\n", {
+  filename: "input.ts",
+});
+
+console.log(result.source);
+console.log(result.removed);
+```
+
+## Development
+
+```sh
+npm install
+npm run build
+npm test
+npm run check
+```
+
+`npm run check` runs `shhh` against its own source. The codebase contains no comments. Obviously.
+
+## License
+
+MIT
