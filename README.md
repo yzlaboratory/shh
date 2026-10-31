@@ -2,6 +2,7 @@
 
 > A radical no-comments linter for JavaScript and TypeScript.
 
+[![npm](https://img.shields.io/npm/v/@yzlaboratory/shh.svg)](https://www.npmjs.com/package/@yzlaboratory/shh)
 [![CI](https://github.com/yzlaboratory/shh/actions/workflows/ci.yml/badge.svg)](https://github.com/yzlaboratory/shh/actions/workflows/ci.yml)
 
 `shh` is Prettier's angry little sibling. Instead of formatting your code, it finds comments and tells you to be quiet.
@@ -27,19 +28,11 @@ This is intentionally blunt. A more nuanced policy can come later.
 
 ## Install
 
-Install directly from GitHub until the package is published to npm:
-
-```sh
-npm install --save-dev github:yzlaboratory/shh
-```
-
-After publishing, the npm install will be:
-
 ```sh
 npm install --save-dev @yzlaboratory/shh
 ```
 
-Requires Node.js 20 or newer. Git installs run the `prepare` script, so the CLI is built automatically.
+Requires Node.js 20 or newer.
 
 Once installed, the binary is available locally:
 
@@ -161,7 +154,7 @@ A pre-commit check is the whole point. Pick whichever setup you already use.
 ### lint-staged
 
 ```sh
-npm install --save-dev github:yzlaboratory/shh lint-staged
+npm install --save-dev @yzlaboratory/shh lint-staged
 ```
 
 In `package.json`:
@@ -179,7 +172,7 @@ Then wire lint-staged into your hook using Husky or your existing setup. lint-st
 ### Husky
 
 ```sh
-npm install --save-dev github:yzlaboratory/shh husky
+npm install --save-dev @yzlaboratory/shh husky
 npx husky init
 ```
 
