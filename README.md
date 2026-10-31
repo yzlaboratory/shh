@@ -341,11 +341,19 @@ gh workflow enable Publish --repo yzlaboratory/shh
 
 After that, releases use OIDC trusted publishing. No `NPM_TOKEN` secret is needed.
 
+After a successful publish, the workflow also updates `yzlaboratory/homebrew-tap` using the `HOMEBREW_TAP_DEPLOY_KEY` deploy key.
+
 Release with:
 
 ```sh
 npm version patch
-git push
+git push --follow-tags
+```
+
+Homebrew users pick up the release with:
+
+```sh
+brew update && brew upgrade shh
 ```
 
 Every push to `main` must have an unpublished version. For a non-release push, bump the version or bypass the local hook with `git push --no-verify`; the workflow will still fail if the version is already published.

@@ -36,3 +36,21 @@ jobs:
 
       - name: Publish to npm
         run: npm publish --access public --provenance
+
+      - name: Configure Homebrew tap deploy key
+        env:
+          HOMEBREW_TAP_DEPLOY_KEY: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
+        run: |
+          if [ -z "$HOMEBREW_TAP_DEPLOY_KEY" ]; then
+            echo "::error::HOMEBREW_TAP_DEPLOY_KEY repository secret is not set."
+            exit 1
+          fi
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$HOMEBREW_TAP_DEPLOY_KEY" > "$HOME/.ssh/shh_homebrew_tap"
+          chmod 600 "$HOME/.ssh/shh_homebrew_tap"
+          ssh-keyscan -H github.com >> "$HOME/.ssh/known_hosts"
+
+      - name: Update Homebrew formula
+        run: |
+          GIT_SSH_COMMAND="ssh -i $HOME/.ssh/shh_homebrew_tap -o IdentitiesOnly=yes" \
+            node scripts/update-homebrew-formula.mjs
