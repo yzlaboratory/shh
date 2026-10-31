@@ -20,7 +20,7 @@ const tarballUrl = `https://registry.npmjs.org/${packageName}/-/${packageBasenam
 const tapRepository =
   process.env.TAP_REPOSITORY ?? "yzlaboratory/homebrew-tap";
 const formulaPath = process.env.TAP_FORMULA_PATH ?? "Formula/shh.rb";
-const maxAttempts = 60;
+const maxAttempts = 120;
 const retryDelayMs = 5000;
 
 async function downloadTarball() {
