@@ -27,11 +27,13 @@ This is intentionally blunt. A more nuanced policy can come later.
 
 ## Install
 
+Install directly from GitHub until the package is published to npm:
+
 ```sh
-npm install --save-dev shhh-cli
+npm install --save-dev github:yzlaboratory/shhh
 ```
 
-Requires Node.js 20 or newer.
+Requires Node.js 20 or newer. Git installs run the `prepare` script, so the CLI is built automatically.
 
 Once installed, the binary is available locally:
 
@@ -153,7 +155,7 @@ A pre-commit check is the whole point. Pick whichever setup you already use.
 ### lint-staged
 
 ```sh
-npm install --save-dev shhh-cli lint-staged
+npm install --save-dev github:yzlaboratory/shhh lint-staged
 ```
 
 In `package.json`:
@@ -171,7 +173,7 @@ Then wire lint-staged into your hook using Husky or your existing setup. lint-st
 ### Husky
 
 ```sh
-npm install --save-dev shhh-cli husky
+npm install --save-dev github:yzlaboratory/shhh husky
 npx husky init
 ```
 
